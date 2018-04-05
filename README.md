@@ -10,6 +10,11 @@ Falkonry C# Client to access [Falkonry Condition Prediction](falkonry.com) APIs
 ## Requirements
 - .NET 4.0+
 
+## Installation
+```
+<package id="FalkonryClient" version="2.1.0" targetFramework="net40" />
+```
+
 ## Documentation
 http://help.falkonry.com/en/latest/adk_documentation.html
 
