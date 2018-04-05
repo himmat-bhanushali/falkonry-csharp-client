@@ -130,6 +130,10 @@
     <Compile Include="Tests\TestGetFacts.cs" />
     <Compile Include="Tests\TestGetDatastreamData.cs" />
     <Compile Include="Tests\TestGetOutput.cs" />
+    <Compile Include="Helper\Models\OutputStateRequest.cs" />
+    <Compile Include="Helper\Models\OutputStateResponse.cs" />
+    <Compile Include="Helper\Models\OutputUrl.cs" />
+    <Compile Include="Tests\TestBackfillProcess.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Tests\" />

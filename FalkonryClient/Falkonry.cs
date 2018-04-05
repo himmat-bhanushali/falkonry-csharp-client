@@ -282,6 +282,66 @@ namespace FalkonryClient
       }
     }
 
+    public OutputStateResponse StartBackfillProcess(OutputStateRequest outputStateRequest)
+    {
+      try
+      {
+        return _falkonryService.StartBackfillProcess(outputStateRequest);
+      }
+      catch (Exception)
+      {
+        throw;
+      }
+    }
+
+    public void StopBackfillProcess(string outputStateId)
+    {
+      try
+      {
+        _falkonryService.StopBackfillProcess(outputStateId);
+      }
+      catch (Exception)
+      {
+        throw;
+      }
+    }
+
+    public InputStatus AddInputDataToBackfillProcessByStream(string outputStateId, string datastreamId, byte[] stream, SortedDictionary<string, string> options)
+    {
+      try
+      {
+        return _falkonryService.AddInputDataToBackfillProcessByStream(outputStateId, datastreamId, stream, options);
+      }
+      catch (Exception)
+      {
+        throw;
+      }
+    }
+
+    public InputStatus AddInputDataToBackfillProcess(string outputStateId, string datastreamId, string data, SortedDictionary<string, string> options)
+    {
+      try
+      {
+        return _falkonryService.AddInputDataToBackfillProcess(outputStateId, datastreamId, data, options);
+      }
+      catch (Exception)
+      {
+        throw;
+      }
+    }
+
+    public EventSource GetOutputDataFromBackfillProcess(string outputStateId, string assessmentId)
+    {
+      try
+      {
+        return _falkonryService.GetOutputDataFromBackfillProcess(outputStateId, assessmentId);
+      }
+      catch (Exception)
+      {
+        throw;
+      }
+    }
+
   }
 
 }

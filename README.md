@@ -50,6 +50,7 @@ Falkonry C# Client to access [Falkonry Condition Prediction](falkonry.com) APIs
   * Get Streaming Output
   * Datastream On (Start live monitoring of datastream)
   * Datastream Off (Stop live monitoring of datastream)
+  * Run Backfill Process
     
 ## Quick Start
   * Get auth token from the Falkonry Service UI.
@@ -1071,6 +1072,71 @@ Sample CSVFile
   falkonry.offDatastream(datastream_id);
 ```
 
+#### Run Backfill Process
+```
+  using FalkonryClient;
+  using FalkonryClient.Helper.Models;
+
+  string token="Add your token here";   
+  Falkonry falkonry = new Falkonry("https://localhost:8080", token);
+
+  string datastream_id ="datastream ID here";
+  string assessment_id ="assessment ID here";
+
+   EventSource eventSource;
+
+    //Handles live streaming output
+    private void EventSource_Message(object sender, EventSource.ServerSentEventArgs e)
+    {
+      try
+      { var falkonryEvent = JsonConvert.DeserializeObject<FalkonryEvent>(e.Data); }
+      catch (System.Exception exception)
+      {
+        // exception in parsing the event
+      }
+    }
+
+    //Handles any error while fetching the live streaming output
+    private void EventSource_Error(object sender, EventSource.ServerSentErrorEventArgs e)
+    {
+      // error connecting to Falkonry service for output streaming
+    }
+
+  OutputStateRequest outputStateRequest = new OutputStateRequest();
+  outputStateRequest.Datastream = datastream_id;
+  List<string> assessmentList = new List<string>();
+  assessmentList.Add(assessment_id);
+  outputStateRequest.Assessment = assessmentList;
+  OutputStateResponse outputStateResponse = _falkonry.StartBackfillProcess(outputStateRequest);
+
+  // Start listening on output
+  eventSource = _falkonry.GetOutputDataFromBackfillProcess(outputStateResponse.OutputStateId, assessmentId);
+
+  //On successfull live streaming output EventSource_Message will be triggered
+  eventSource.Message += EventSource_Message;
+
+  //On any error while getting live streaming output, EventSource_Error will be triggered
+  eventSource.Error += EventSource_Error;
+
+  //Keep stream open for 60sec
+  //System.Threading.Thread.Sleep(20000);
+
+
+  // Start sending streaming data to input url from outputStateResponse
+  // Input data should match the datastreamId's data format otherwise it will return error
+  var data = "time,unit,signal1,signal2,batch \n" + "1522774573095, UNIT-1, 12.4, 45.30, 12 \n 1522774578122, UNIT-1, 12.4, 45.30, 12";
+  var inputstatus = _falkonry.AddInputDataToBackfillProcess(outputStateResponse.OutputStateId, datastreamId, data, null);
+
+  //check data status
+  //CheckStatus(inputstatus.Id);
+  eventSource.Dispose();
+
+  //System.Threading.Thread.Sleep(20000);
+  // stop the backfill process
+  _falkonry.StopBackfillProcess(outputStateResponse.OutputStateId);
+
+
+```
 ## Docs
 
     [Falkonry APIs](https://service.falkonry.io/api)

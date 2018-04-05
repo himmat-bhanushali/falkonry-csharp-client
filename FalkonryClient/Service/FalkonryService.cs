@@ -76,7 +76,7 @@ namespace FalkonryClient.Service
     {
       try
       {
-        var url = getInputIngestionUrl(datastream, options);
+        var url = getInputIngestionUrl("/datastream/"+datastream, options);
         var status = _http.PostData(url, data);
         return JsonConvert.DeserializeObject<InputStatus>(status);
       }
@@ -91,7 +91,7 @@ namespace FalkonryClient.Service
     {
       try
       {
-        var url = getInputIngestionUrl(datastream, options);
+        var url = getInputIngestionUrl("/datastream/" + datastream, options);
         var status = _http.Upstream(url, data);
         return JsonConvert.DeserializeObject<InputStatus>(status);
       }
@@ -460,6 +460,85 @@ namespace FalkonryClient.Service
       }
     }
 
+    // Start Output
+    public OutputStateResponse StartBackfillProcess(OutputStateRequest outputStateRequest)
+    {
+        try
+        {
+            var data = JsonConvert.SerializeObject(outputStateRequest, Formatting.Indented,
+                new JsonSerializerSettings() { ContractResolver = new CamelCasePropertyNamesContractResolver() });
+        var OutputStateRes = _http.Post("/assessment/outputState/start",data);
+
+            return JsonConvert.DeserializeObject<OutputStateResponse>(OutputStateRes);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    //Stop output
+    public void StopBackfillProcess(string outputStateId)
+    {
+        try
+        {
+        _http.Post("/assessment/outputState/"+outputStateId+"/stop", "");
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+
+    public InputStatus AddInputDataToBackfillProcess(string outputStateId, string datastreamId, string data, SortedDictionary<string, string> options)
+    {
+        try
+        {
+        var url = getInputIngestionUrl("/datastream/"+datastreamId+"/outputState/"+outputStateId, options);
+            var status = _http.PostData(url, data);
+            return JsonConvert.DeserializeObject<InputStatus>(status);
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+
+    //Stream input data
+    public InputStatus AddInputDataToBackfillProcessByStream(string outputStateId, string datastreamId, byte[] data, SortedDictionary<string, string> options)
+    {
+        try
+        {
+        var url = getInputIngestionUrl("/datastream/" + datastreamId + "/outputState/" + outputStateId, options);
+            var status = _http.Upstream(url, data);
+            return JsonConvert.DeserializeObject<InputStatus>(status);
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+
+    //Get streaming output data
+    public EventSource GetOutputDataFromBackfillProcess(string outputStateId,string assessmentId)
+    {
+      try
+      {
+
+        var url = "/assessment/"+assessmentId +"/outputState/"+ outputStateId;
+        return _http.Downstream(url);
+      }
+      catch (Exception)
+      {
+
+        throw;
+      }
+    }
+        
+
     private string get_add_facts_url(string assessment, SortedDictionary<string, string> options)
     {
       var url = "/assessment/" + assessment + "/facts?";
@@ -476,6 +555,8 @@ namespace FalkonryClient.Service
         string batchIdentifier;
 
         var firstReqParam = true;
+        if (options == null)
+          return url;
         if (options.TryGetValue("startTimeIdentifier", out startTimeIdentifier))
         {
           if (firstReqParam)
@@ -558,65 +639,68 @@ namespace FalkonryClient.Service
       }
     }
 
-    private String getInputIngestionUrl(string datastreamId, SortedDictionary<string, string> options = null)
+    private String getInputIngestionUrl(string url, SortedDictionary<string, string> options)
     {
-      string streamingValue;
-      string hasMoreDataValue;
-      string timeFormatValue;
-      string timeZoneValue;
-      string timeIdentifierValue;
-      string entityIdentifierValue;
-      string signalIdentifierValue;
-      string valueIdentifierValue;
-      string batchIdentifierValue;
-
-      var url = "/datastream/" + datastreamId;
-
-      if (options.TryGetValue("streaming", out streamingValue))
+      try
       {
-        url += "?streaming=" + Uri.EscapeDataString(streamingValue);
-      }
-      else
+        string streamingValue;
+        string hasMoreDataValue;
+        string timeFormatValue;
+        string timeZoneValue;
+        string timeIdentifierValue;
+        string entityIdentifierValue;
+        string signalIdentifierValue;
+        string valueIdentifierValue;
+        string batchIdentifierValue;
+        if (options.TryGetValue("streaming", out streamingValue))
+        {
+          url += "?streaming=" + Uri.EscapeDataString(streamingValue);
+        }
+        else
+        {
+          url += "?streaming=true";
+        }
+        if (options.TryGetValue("hasMoreData", out hasMoreDataValue))
+        {
+          url += "&hasMoreData=" + Uri.EscapeDataString(hasMoreDataValue);
+        }
+        else
+        {
+          url += "&hasMoreData=true";
+        }
+        if (options.TryGetValue("timeFormat", out timeFormatValue))
+        {
+          url += "&timeFormat=" + Uri.EscapeDataString(timeFormatValue);
+        }
+        if (options.TryGetValue("timeZone", out timeZoneValue))
+        {
+          url += "&timeZone=" + Uri.EscapeDataString(timeZoneValue);
+        }
+        if (options.TryGetValue("timeIdentifier", out timeIdentifierValue))
+        {
+          url += "&timeIdentifier=" + Uri.EscapeDataString(timeIdentifierValue);
+        }
+        if (options.TryGetValue("entityIdentifier", out entityIdentifierValue))
+        {
+          url += "&entityIdentifier=" + Uri.EscapeDataString(entityIdentifierValue);
+        }
+        if (options.TryGetValue("signalIdentifier", out signalIdentifierValue))
+        {
+          url += "&signalIdentifier=" + Uri.EscapeDataString(signalIdentifierValue);
+        }
+        if (options.TryGetValue("valueIdentifier", out valueIdentifierValue))
+        {
+          url += "&valueIdentifier=" + Uri.EscapeDataString(valueIdentifierValue);
+        }
+        if (options.TryGetValue("batchIdentifier", out batchIdentifierValue))
+        {
+          url += "&batchIdentifier=" + Uri.EscapeDataString(batchIdentifierValue);
+        }
+        return url;
+      }catch (Exception)
       {
-        url += "?streaming=true";
+        return url;
       }
-      if (options.TryGetValue("hasMoreData", out hasMoreDataValue))
-      {
-        url += "&hasMoreData=" + Uri.EscapeDataString(hasMoreDataValue);
-      }
-      else
-      {
-        url += "&hasMoreData=true";
-      }
-      if (options.TryGetValue("timeFormat", out timeFormatValue))
-      {
-        url += "&timeFormat=" + Uri.EscapeDataString(timeFormatValue);
-      }
-      if (options.TryGetValue("timeZone", out timeZoneValue))
-      {
-        url += "&timeZone=" + Uri.EscapeDataString(timeZoneValue);
-      }
-      if (options.TryGetValue("timeIdentifier", out timeIdentifierValue))
-      {
-        url += "&timeIdentifier=" + Uri.EscapeDataString(timeIdentifierValue);
-      }
-      if (options.TryGetValue("entityIdentifier", out entityIdentifierValue))
-      {
-        url += "&entityIdentifier=" + Uri.EscapeDataString(entityIdentifierValue);
-      }
-      if (options.TryGetValue("signalIdentifier", out signalIdentifierValue))
-      {
-        url += "&signalIdentifier=" + Uri.EscapeDataString(signalIdentifierValue);
-      }
-      if (options.TryGetValue("valueIdentifier", out valueIdentifierValue))
-      {
-        url += "&valueIdentifier=" + Uri.EscapeDataString(valueIdentifierValue);
-      }
-      if (options.TryGetValue("batchIdentifier", out batchIdentifierValue))
-      {
-        url += "&batchIdentifier=" + Uri.EscapeDataString(batchIdentifierValue);
-      }
-      return url;
     }
 
     public Tracker GetStatus(String trackerId)
