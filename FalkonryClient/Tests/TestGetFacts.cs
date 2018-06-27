@@ -225,6 +225,8 @@ namespace FalkonryClient.Tests
         {
           { "responseFormat", "application/json" }
         };
+
+        System.Threading.Thread.Sleep(60000);
         var factsData = _falkonry.getFacts(assessment.Id, options);
         Assert.AreEqual(factsData.Response.Length > 0, true);
         Assert.AreEqual(factsData.Response.ToLower().Contains(optionsFacts["batchIdentifier"].ToLower()), true);
