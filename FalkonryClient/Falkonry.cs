@@ -220,11 +220,11 @@ namespace FalkonryClient
       }
     }
 
-    public void onDatastream(string datastreamId)
+    public void onDatastream(string datastreamId, SortedDictionary<string, string> options = null)
     {
       try
       {
-        _falkonryService.onDatastream(datastreamId);
+        _falkonryService.onDatastream(datastreamId, options);
       }
       catch (Exception)
       {
@@ -232,11 +232,11 @@ namespace FalkonryClient
       }
     }
 
-    public void offDatastream(string datastreamId)
+    public void offDatastream(string datastreamId, SortedDictionary<string, string> options = null)
     {
       try
       {
-        _falkonryService.offDatastream(datastreamId);
+        _falkonryService.offDatastream(datastreamId, options);
       }
       catch (Exception)
       {

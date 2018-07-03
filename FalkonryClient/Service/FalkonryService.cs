@@ -433,11 +433,16 @@ namespace FalkonryClient.Service
     }
 
     // On  Datastream
-    public void onDatastream(string datastreamId)
+    public void onDatastream(string datastreamId, SortedDictionary<string, string> options = null)
     {
       try
       {
-        _http.Post("/datastream/" + datastreamId + "/on", "");
+        var url = "/datastream/" + datastreamId + "/on?";
+        if (options.TryGetValue("assessment", out assessment))
+        {
+          url += "assessment=" + Uri.EscapeDataString(assessment);
+        }
+        _http.Post(url, "");
       }
       catch (Exception)
       {
@@ -447,11 +452,16 @@ namespace FalkonryClient.Service
     }
 
     // OFF  Datastream
-    public void offDatastream(string datastreamId)
+    public void offDatastream(string datastreamId, SortedDictionary<string, string> options = null)
     {
       try
       {
-        _http.Post("/datastream/" + datastreamId + "/off", "");
+        var url = "/datastream/" + datastreamId + "/off?";
+        if (options.TryGetValue("assessment", out assessment))
+        {
+          url += "assessment=" + Uri.EscapeDataString(assessment);
+        }
+        _http.Post(url, "");
       }
       catch (Exception)
       {
